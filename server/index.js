@@ -18,6 +18,7 @@ const regulatoryRoutes = require('./routes/regulatory');
 const standardsRoutes = require('./routes/standards');
 const accreditationRoutes = require('./routes/accreditation');
 const alertsRoutes = require('./routes/alerts');
+const criticalAlertsRoutes = require('./routes/criticalAlerts');
 const reportsRoutes = require('./routes/reports');
 const documentsRoutes = require('./routes/documents');
 const facultyRoutes = require('./routes/faculty');
@@ -30,8 +31,9 @@ const { requestLogger } = require('./middleware/logger');
 const { authenticateToken } = require('./middleware/auth');
 const { validateRequest } = require('./middleware/validation');
 
-// Import database
+// Import database and models
 const { sequelize } = require('./config/database');
+require('./models'); // Import all models to ensure they're registered with Sequelize
 
 // Import services
 const { initializeRedis } = require('./config/redis');
@@ -98,6 +100,7 @@ app.use('/api/regulatory', authenticateToken, regulatoryRoutes);
 app.use('/api/standards', authenticateToken, standardsRoutes);
 app.use('/api/accreditation', authenticateToken, accreditationRoutes);
 app.use('/api/alerts', authenticateToken, alertsRoutes);
+app.use('/api/critical-alerts', authenticateToken, criticalAlertsRoutes);
 app.use('/api/reports', authenticateToken, reportsRoutes);
 app.use('/api/documents', authenticateToken, documentsRoutes);
 app.use('/api/faculty', authenticateToken, facultyRoutes);
