@@ -7,9 +7,17 @@ const Faculty = require('./Faculty');
 const Document = require('./Document');
 const Alert = require('./Alert');
 const Approval = require('./Approval');
+
+// Phase 1 Models
 const ComplianceDeadline = require('./ComplianceDeadline');
 const RiskAssessment = require('./RiskAssessment');
 const AlertNotification = require('./AlertNotification');
+
+// Phase 2 Models
+const GovernmentPortal = require('./GovernmentPortal');
+const ComplianceVerification = require('./ComplianceVerification');
+const AIDocument = require('./AIDocument');
+const ExecutiveMetric = require('./ExecutiveMetric');
 
 // Define model associations
 const defineAssociations = () => {
@@ -82,6 +90,41 @@ const defineAssociations = () => {
   // User-Recipient Association (for notifications sent to specific users)
   User.hasMany(AlertNotification, { foreignKey: 'recipientId', as: 'receivedNotifications' });
   AlertNotification.belongsTo(User, { foreignKey: 'recipientId', as: 'recipient' });
+
+  // Phase 2: GovernmentPortal Associations
+  // GovernmentPortal doesn't have foreign keys as it's a configuration entity
+  // but we can add it to the models object for completeness
+
+  // Phase 2: ComplianceVerification Associations
+  Institution.hasMany(ComplianceVerification, { foreignKey: 'institutionId', as: 'complianceVerifications' });
+  ComplianceVerification.belongsTo(Institution, { foreignKey: 'institutionId', as: 'institution' });
+
+  GovernmentPortal.hasMany(ComplianceVerification, { foreignKey: 'portalId', as: 'verifications' });
+  ComplianceVerification.belongsTo(GovernmentPortal, { foreignKey: 'portalId', as: 'portal' });
+
+  // Phase 2: AIDocument Associations
+  Institution.hasMany(AIDocument, { foreignKey: 'institutionId', as: 'aiDocuments' });
+  AIDocument.belongsTo(Institution, { foreignKey: 'institutionId', as: 'institution' });
+
+  User.hasMany(AIDocument, { foreignKey: 'uploadedBy', as: 'uploadedDocuments' });
+  AIDocument.belongsTo(User, { foreignKey: 'uploadedBy', as: 'uploader' });
+
+  Faculty.hasMany(AIDocument, { foreignKey: 'facultyId', as: 'aiDocuments' });
+  AIDocument.belongsTo(Faculty, { foreignKey: 'facultyId', as: 'faculty' });
+
+  User.hasMany(AIDocument, { foreignKey: 'validatedBy', as: 'validatedDocuments' });
+  AIDocument.belongsTo(User, { foreignKey: 'validatedBy', as: 'validator' });
+
+  ComplianceVerification.hasMany(AIDocument, { foreignKey: 'complianceVerificationId', as: 'supportingDocuments' });
+  AIDocument.belongsTo(ComplianceVerification, { foreignKey: 'complianceVerificationId', as: 'complianceVerification' });
+
+  // Self-referencing relationship for document versions
+  AIDocument.hasMany(AIDocument, { foreignKey: 'parentDocumentId', as: 'documentVersions' });
+  AIDocument.belongsTo(AIDocument, { foreignKey: 'parentDocumentId', as: 'parentDocument' });
+
+  // Phase 2: ExecutiveMetric Associations
+  Institution.hasMany(ExecutiveMetric, { foreignKey: 'institutionId', as: 'executiveMetrics' });
+  ExecutiveMetric.belongsTo(Institution, { foreignKey: 'institutionId', as: 'institution' });
 };
 
 // Export all models
@@ -92,9 +135,15 @@ const models = {
   Document,
   Alert,
   Approval,
+  // Phase 1 Models
   ComplianceDeadline,
   RiskAssessment,
-  AlertNotification
+  AlertNotification,
+  // Phase 2 Models
+  GovernmentPortal,
+  ComplianceVerification,
+  AIDocument,
+  ExecutiveMetric
 };
 
 // Initialize associations

@@ -25,6 +25,11 @@ const facultyRoutes = require('./routes/faculty');
 const institutionsRoutes = require('./routes/institutions');
 const notificationsRoutes = require('./routes/notifications');
 
+// Phase 2 Routes - Government Portal Integration, AI Document Processing, Executive Analytics
+const governmentPortalRoutes = require('./routes/governmentPortal');
+const aiDocumentsRoutes = require('./routes/aiDocuments');
+const executiveAnalyticsRoutes = require('./routes/executiveAnalytics');
+
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
 const { requestLogger } = require('./middleware/logger');
@@ -106,6 +111,11 @@ app.use('/api/documents', authenticateToken, documentsRoutes);
 app.use('/api/faculty', authenticateToken, facultyRoutes);
 app.use('/api/institutions', authenticateToken, institutionsRoutes);
 app.use('/api/notifications', authenticateToken, notificationsRoutes);
+
+// Phase 2 Routes - Government Portal Integration, AI Document Processing, Executive Analytics
+app.use('/api/government-portal', authenticateToken, governmentPortalRoutes);
+app.use('/api/ai-documents', authenticateToken, aiDocumentsRoutes);
+app.use('/api/executive-analytics', authenticateToken, executiveAnalyticsRoutes);
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
