@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initSmoothScrolling();
     initParallaxEffects();
     initLoadingStates();
+    initAppPreview();
 });
 
 // ========================================
@@ -538,6 +539,112 @@ window.addEventListener('error', function(e) {
     console.error('JavaScript Error:', e.error);
     // You can add error reporting here
 });
+
+// ========================================
+// APP PREVIEW FUNCTIONALITY
+// ========================================
+
+function initAppPreview() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const appScreens = document.querySelectorAll('.app-screen');
+    
+    if (tabButtons.length === 0) return;
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // Remove active class from all tabs and screens
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            appScreens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Show corresponding screen
+            const targetScreen = document.getElementById(targetTab);
+            if (targetScreen) {
+                setTimeout(() => {
+                    targetScreen.classList.add('active');
+                }, 150);
+            }
+        });
+    });
+    
+    // Add hover effects to interactive elements
+    const interactiveElements = document.querySelectorAll('.document-item, .activity-item, .sensor-card, .action-btn');
+    
+    interactiveElements.forEach(element => {
+        element.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        element.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // Add click animations to buttons
+    const clickableButtons = document.querySelectorAll('.action-btn, .nav-btn, .control-btn');
+    
+    clickableButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Create ripple effect
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s ease-out;
+                pointer-events: none;
+            `;
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+    
+    // Auto-rotate tabs every 5 seconds
+    let currentTabIndex = 0;
+    const tabInterval = setInterval(() => {
+        currentTabIndex = (currentTabIndex + 1) % tabButtons.length;
+        tabButtons[currentTabIndex].click();
+    }, 5000);
+    
+    // Pause auto-rotation on user interaction
+    document.addEventListener('click', function() {
+        clearInterval(tabInterval);
+    }, { once: true });
+}
+
+// Add CSS for ripple animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
 
 // ========================================
 // PERFORMANCE MONITORING
