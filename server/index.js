@@ -25,6 +25,9 @@ const facultyRoutes = require('./routes/faculty');
 const institutionsRoutes = require('./routes/institutions');
 const notificationsRoutes = require('./routes/notifications');
 
+// Landing Page Routes
+const landingPageRoutes = require('./routes/landingPage');
+
 // Phase 2 Routes - Government Portal Integration, AI Document Processing, Executive Analytics
 const governmentPortalRoutes = require('./routes/governmentPortal');
 const aiDocumentsRoutes = require('./routes/aiDocuments');
@@ -106,7 +109,10 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
+// Landing Page API Routes (public)
+app.use('/api', landingPageRoutes);
+
+// Authentication Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', authenticateToken, dashboardRoutes);
 app.use('/api/regulatory', authenticateToken, regulatoryRoutes);
@@ -135,10 +141,21 @@ app.use('/api/autonomous-system', authenticateToken, autonomousSystemRoutes);
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
+  // Serve landing page and assets
+  app.use(express.static(path.join(__dirname, '..')));
   
+  // Serve landing page for all non-API routes
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    // Don't serve landing page for API routes
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({
+        error: 'API Endpoint Not Found',
+        message: 'The requested API endpoint was not found',
+        path: req.originalUrl
+      });
+    }
+    
+    res.sendFile(path.join(__dirname, '../index.html'));
   });
 }
 

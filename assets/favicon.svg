@@ -1,0 +1,7 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simplified favicon version -->
+  <circle cx="16" cy="16" r="15" fill="#EA580C"/>
+  <circle cx="16" cy="16" r="8" fill="#FFFFFF"/>
+  <path d="M12 12h8v8h-8z" fill="#15803D"/>
+  <path d="M14 14l2 2 4-4" stroke="#FFFFFF" stroke-width="1.5" fill="none"/>
+</svg>
