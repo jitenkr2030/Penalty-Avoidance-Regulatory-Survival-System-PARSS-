@@ -553,4 +553,253 @@ router.get('/framework-stats', async (req, res) => {
   }
 });
 
+// ========================================
+// CLIENT-COMPATIBLE ENDPOINTS
+// ========================================
+
+// Get blockchain records (client-compatible)
+router.get('/records', async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      dataType,
+      networkType,
+      isVerified,
+      startDate,
+      endDate
+    } = req.query;
+
+    const filters = {
+      ...(dataType && { dataType }),
+      ...(networkType && { networkType }),
+      ...(isVerified !== undefined && { isVerified: isVerified === 'true' }),
+      ...(startDate && { startDate: new Date(startDate) }),
+      ...(endDate && { endDate: new Date(endDate) })
+    };
+
+    const records = await BlockchainRecord.findAndCountAll({
+      where: filters,
+      limit: parseInt(limit),
+      offset: (parseInt(page) - 1) * parseInt(limit),
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json({
+      records: records.rows,
+      total: records.count,
+      page: parseInt(page),
+      totalPages: Math.ceil(records.count / parseInt(limit))
+    });
+  } catch (error) {
+    console.error('Get blockchain records error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get blockchain records',
+      error: error.message
+    });
+  }
+});
+
+// Get single blockchain record (client-compatible)
+router.get('/records/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const record = await BlockchainRecord.findByPk(id);
+
+    if (!record) {
+      return res.status(404).json({
+        success: false,
+        message: 'Blockchain record not found'
+      });
+    }
+
+    res.json(record);
+  } catch (error) {
+    console.error('Get blockchain record error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get blockchain record',
+      error: error.message
+    });
+  }
+});
+
+// Create blockchain record (client-compatible)
+router.post('/records', async (req, res) => {
+  try {
+    const {
+      dataType,
+      data,
+      metadata,
+      networkType = 'testnet'
+    } = req.body;
+
+    if (!dataType || !data) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: dataType, data'
+      });
+    }
+
+    const record = await BlockchainRecord.create({
+      dataType,
+      data,
+      metadata,
+      networkType,
+      isVerified: false
+    });
+
+    res.status(201).json(record);
+  } catch (error) {
+    console.error('Create blockchain record error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create blockchain record',
+      error: error.message
+    });
+  }
+});
+
+// Update blockchain record (client-compatible)
+router.put('/records/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const record = await BlockchainRecord.findByPk(id);
+
+    if (!record) {
+      return res.status(404).json({
+        success: false,
+        message: 'Blockchain record not found'
+      });
+    }
+
+    await record.update(updates);
+    res.json(record);
+  } catch (error) {
+    console.error('Update blockchain record error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update blockchain record',
+      error: error.message
+    });
+  }
+});
+
+// Verify blockchain record (client-compatible)
+router.post('/records/:id/verify', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const record = await BlockchainRecord.findByPk(id);
+
+    if (!record) {
+      return res.status(404).json({
+        success: false,
+        message: 'Blockchain record not found'
+      });
+    }
+
+    // Simulate verification process
+    const verified = Math.random() > 0.3; // 70% success rate for demo
+    const blockNumber = verified ? Math.floor(Math.random() * 1000000) : null;
+
+    await record.update({
+      isVerified: verified,
+      ...(verified && { blockNumber })
+    });
+
+    res.json({
+      verified,
+      ...(verified && { blockNumber })
+    });
+  } catch (error) {
+    console.error('Verify blockchain record error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to verify blockchain record',
+      error: error.message
+    });
+  }
+});
+
+// Get blockchain transactions (client-compatible)
+router.get('/transactions', async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      startDate,
+      endDate
+    } = req.query;
+
+    // Mock transaction data for demo
+    const transactions = Array.from({ length: parseInt(limit) }, (_, i) => ({
+      id: `tx_${Date.now()}_${i}`,
+      hash: `0x${Math.random().toString(16).substr(2, 64)}`,
+      from: `0x${Math.random().toString(16).substr(2, 40)}`,
+      to: `0x${Math.random().toString(16).substr(2, 40)}`,
+      value: (Math.random() * 10).toFixed(4),
+      gasUsed: (Math.floor(Math.random() * 21000) + 21000).toString(),
+      gasPrice: '20',
+      blockNumber: Math.floor(Math.random() * 1000000),
+      status: ['pending', 'confirmed', 'failed'][Math.floor(Math.random() * 3)],
+      timestamp: new Date(Date.now() - Math.random() * 86400000 * 30).toISOString(),
+      confirmations: Math.floor(Math.random() * 100)
+    }));
+
+    res.json({
+      transactions,
+      total: 100, // Mock total
+      page: parseInt(page),
+      totalPages: 10 // Mock total pages
+    });
+  } catch (error) {
+    console.error('Get blockchain transactions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get blockchain transactions',
+      error: error.message
+    });
+  }
+});
+
+// Get blockchain analytics (client-compatible)
+router.get('/analytics', async (req, res) => {
+  try {
+    const { period } = req.query;
+
+    // Mock analytics data
+    const analytics = {
+      totalRecords: 1250,
+      recordsByType: {
+        compliance: 450,
+        accreditation: 320,
+        regulatory: 280,
+        standards: 200
+      },
+      transactionVolume: Array.from({ length: 30 }, (_, i) => ({
+        date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
+        count: Math.floor(Math.random() * 50) + 10
+      })),
+      networkStats: {
+        testnet: { records: 800, transactions: 1200 },
+        mainnet: { records: 450, transactions: 750 }
+      }
+    };
+
+    res.json(analytics);
+  } catch (error) {
+    console.error('Get blockchain analytics error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get blockchain analytics',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

@@ -1,7 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authTypes } from '../types/auth';
+import Config from 'react-native-config';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Environment-based API configuration
+const getApiBaseUrl = () => {
+  if (__DEV__) {
+    return 'http://localhost:5000/api';
+  }
+  return Config.API_BASE_URL || 'https://your-production-domain.com/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 class AuthService {
   private async makeRequest(endpoint: string, options: RequestInit = {}) {
@@ -18,6 +27,26 @@ class AuthService {
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+      
+      // Handle 401 errors with token refresh
+      if (response.status === 401 && !options.headers?.['x-refreshing-token']) {
+        const refreshed = await this.refreshToken();
+        if (refreshed) {
+          // Retry original request with new token
+          const newToken = await AsyncStorage.getItem('authToken');
+          config.headers = {
+            ...config.headers,
+            Authorization: `Bearer ${newToken}`,
+            'x-refreshing-token': 'true'
+          };
+          return this.makeRequest(endpoint, options);
+        } else {
+          // Refresh failed, sign out user
+          await this.signOut();
+          throw new Error('Session expired. Please log in again.');
+        }
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -31,6 +60,40 @@ class AuthService {
     }
   }
 
+  private async refreshToken(): Promise<boolean> {
+    try {
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
+      if (!refreshToken) return false;
+
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.tokens) {
+          // Handle new token format
+          await AsyncStorage.setItem('authToken', data.tokens.access_token);
+          if (data.tokens.refresh_token) {
+            await AsyncStorage.setItem('refreshToken', data.tokens.refresh_token);
+          }
+        } else {
+          // Handle old token format
+          await AsyncStorage.setItem('authToken', data.access_token);
+          if (data.refresh_token) {
+            await AsyncStorage.setItem('refreshToken', data.refresh_token);
+          }
+        }
+        return true;
+      }
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+    }
+    return false;
+  }
+
   async signIn(email: string, password: string) {
     try {
       const response = await this.makeRequest('/auth/login', {
@@ -38,8 +101,22 @@ class AuthService {
         body: JSON.stringify({ email, password }),
       });
 
-      if (response.token && response.user) {
+      // Handle different response formats
+      if (response.tokens) {
+        // New format with tokens object
+        await AsyncStorage.setItem('authToken', response.tokens.access_token);
+        if (response.tokens.refresh_token) {
+          await AsyncStorage.setItem('refreshToken', response.tokens.refresh_token);
+        }
+      } else if (response.token) {
+        // Old format with single token
         await AsyncStorage.setItem('authToken', response.token);
+        if (response.refresh_token) {
+          await AsyncStorage.setItem('refreshToken', response.refresh_token);
+        }
+      }
+
+      if (response.user) {
         await AsyncStorage.setItem('user', JSON.stringify(response.user));
       }
 
@@ -65,6 +142,7 @@ class AuthService {
   async signOut() {
     try {
       await AsyncStorage.removeItem('authToken');
+      await AsyncStorage.removeItem('refreshToken');
       await AsyncStorage.removeItem('user');
       return true;
     } catch (error) {

@@ -1,6 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Config from 'react-native-config';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Environment-based API configuration
+const getApiBaseUrl = () => {
+  if (__DEV__) {
+    return 'http://localhost:5000/api';
+  }
+  return Config.API_BASE_URL || 'https://your-production-domain.com/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export interface Alert {
   id: string;
