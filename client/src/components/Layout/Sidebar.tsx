@@ -24,7 +24,11 @@ import {
   HelpCircle,
   Globe,
   Brain,
-  Zap
+  Zap,
+  Shield,
+  Wifi,
+  Activity,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/button';
@@ -45,7 +49,7 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { data: notificationSummary } = useNotificationSummary();
-  const [expandedSections, setExpandedSections] = useState<string[]>(['phase1', 'phase2']);
+  const [expandedSections, setExpandedSections] = useState<string[]>(['phase1', 'phase2', 'phase3']);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => 
@@ -127,6 +131,40 @@ const Sidebar: React.FC = () => {
           icon: <TrendingUp className="w-4 h-4" />,
           path: '/executive-analytics',
           permission: 'view_analytics',
+        },
+      ],
+    },
+    {
+      id: 'phase3',
+      label: 'Medium-term Impact',
+      icon: <Brain className="w-5 h-5" />,
+      permission: 'manage_compliance',
+      children: [
+        {
+          id: 'phase3-overview',
+          label: 'Overview',
+          icon: <BarChart3 className="w-4 h-4" />,
+          path: '/phase3',
+        },
+        {
+          id: 'blockchain',
+          label: 'Blockchain Records',
+          icon: <Shield className="w-4 h-4" />,
+          path: '/blockchain',
+        },
+        {
+          id: 'iot-integration',
+          label: 'IoT Integration',
+          icon: <Wifi className="w-4 h-4" />,
+          path: '/iot-integration',
+          permission: 'manage_iot',
+        },
+        {
+          id: 'ai-assistant',
+          label: 'AI Assistant',
+          icon: <MessageSquare className="w-4 h-4" />,
+          path: '/ai-assistant',
+          permission: 'use_ai_assistant',
         },
       ],
     },
@@ -227,6 +265,9 @@ const Sidebar: React.FC = () => {
     }
     if (path === '/phase2') {
       return location.pathname === '/phase2' || location.pathname === '/government-portal' || location.pathname === '/ai-documents' || location.pathname === '/executive-analytics';
+    }
+    if (path === '/phase3') {
+      return location.pathname === '/phase3' || location.pathname === '/blockchain' || location.pathname === '/iot-integration' || location.pathname === '/ai-assistant';
     }
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };

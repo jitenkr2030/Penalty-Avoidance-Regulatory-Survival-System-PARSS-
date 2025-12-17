@@ -30,6 +30,11 @@ const governmentPortalRoutes = require('./routes/governmentPortal');
 const aiDocumentsRoutes = require('./routes/aiDocuments');
 const executiveAnalyticsRoutes = require('./routes/executiveAnalytics');
 
+// Phase 3 Routes - Blockchain Compliance Records, IoT Smart Campus, Advanced AI Assistant
+const blockchainRoutes = require('./routes/blockchain');
+const iotRoutes = require('./routes/iot');
+const aiAssistantRoutes = require('./routes/aiAssistant');
+
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
 const { requestLogger } = require('./middleware/logger');
@@ -116,6 +121,11 @@ app.use('/api/notifications', authenticateToken, notificationsRoutes);
 app.use('/api/government-portal', authenticateToken, governmentPortalRoutes);
 app.use('/api/ai-documents', authenticateToken, aiDocumentsRoutes);
 app.use('/api/executive-analytics', authenticateToken, executiveAnalyticsRoutes);
+
+// Phase 3 Routes - Blockchain Compliance Records, IoT Smart Campus, Advanced AI Assistant
+app.use('/api/blockchain', authenticateToken, blockchainRoutes);
+app.use('/api/iot', authenticateToken, iotRoutes);
+app.use('/api/ai-assistant', authenticateToken, aiAssistantRoutes);
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {

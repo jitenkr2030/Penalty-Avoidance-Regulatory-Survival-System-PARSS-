@@ -32,7 +32,8 @@ const ProfilePage = React.lazy(() => import('./pages/Profile/ProfilePage'));
 
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 const Phase1Page = React.lazy(() => import('./pages/Phase1/Phase1Page'));
-const Phase2Page = React.lazy(() => import('./pages/Phase2Page'));
+const Phase2Page = React.lazy(() => import('./pages/Phase2/Phase2Page'));
+const Phase3Page = React.lazy(() => import('./components/Phase3/Phase3Page'));
 
 // Protected Route Component
 interface ProtectedRouteProps {
@@ -234,6 +235,48 @@ const AppRoutes: React.FC = () => {
               <ProtectedRoute requiredPermissions={['view_analytics']}>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Phase2Page />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Phase 3: Medium-term Impact - Blockchain Records, IoT Integration, Advanced AI Assistant */}
+          <Route
+            path="phase3"
+            element={
+              <ProtectedRoute requiredPermissions={['manage_compliance', 'view_analytics', 'manage_iot']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Phase3Page />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="blockchain"
+            element={
+              <ProtectedRoute requiredPermissions={['manage_compliance']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Phase3Page />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="iot-integration"
+            element={
+              <ProtectedRoute requiredPermissions={['manage_iot']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Phase3Page />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="ai-assistant"
+            element={
+              <ProtectedRoute requiredPermissions={['use_ai_assistant']}>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Phase3Page />
                 </Suspense>
               </ProtectedRoute>
             }

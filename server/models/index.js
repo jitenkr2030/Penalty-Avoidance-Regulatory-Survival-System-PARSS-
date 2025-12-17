@@ -19,6 +19,13 @@ const ComplianceVerification = require('./ComplianceVerification');
 const AIDocument = require('./AIDocument');
 const ExecutiveMetric = require('./ExecutiveMetric');
 
+// Phase 3 Models
+const BlockchainRecord = require('./BlockchainRecord');
+const IoTDevice = require('./IoTDevice');
+const IoTSensorData = require('./IoTSensorData');
+const AIAssistant = require('./AIAssistant');
+const AIChatMessage = require('./AIChatMessage');
+
 // Define model associations
 const defineAssociations = () => {
   // User-Institution Association
@@ -125,6 +132,69 @@ const defineAssociations = () => {
   // Phase 2: ExecutiveMetric Associations
   Institution.hasMany(ExecutiveMetric, { foreignKey: 'institutionId', as: 'executiveMetrics' });
   ExecutiveMetric.belongsTo(Institution, { foreignKey: 'institutionId', as: 'institution' });
+
+  // Phase 3: BlockchainRecord Associations
+  Institution.hasMany(BlockchainRecord, { foreignKey: 'institutionId', as: 'blockchainRecords' });
+  BlockchainRecord.belongsTo(Institution, { foreignKey: 'institutionId', as: 'institution' });
+
+  User.hasMany(BlockchainRecord, { foreignKey: 'createdBy', as: 'createdBlockchainRecords' });
+  BlockchainRecord.belongsTo(User, { foreignKey: 'createdBy', as: 'creator' });
+
+  // Self-referencing relationship for blockchain record versions
+  BlockchainRecord.hasMany(BlockchainRecord, { foreignKey: 'parentRecordId', as: 'recordVersions' });
+  BlockchainRecord.belongsTo(BlockchainRecord, { foreignKey: 'parentRecordId', as: 'parentRecord' });
+
+  // Phase 3: IoTDevice Associations
+  Institution.hasMany(IoTDevice, { foreignKey: 'institutionId', as: 'iotDevices' });
+  IoTDevice.belongsTo(Institution, { foreignKey: 'institutionId', as: 'institution' });
+
+  User.hasMany(IoTDevice, { foreignKey: 'managedBy', as: 'managedDevices' });
+  IoTDevice.belongsTo(User, { foreignKey: 'managedBy', as: 'manager' });
+
+  User.hasMany(IoTDevice, { foreignKey: 'ownedBy', as: 'ownedDevices' });
+  IoTDevice.belongsTo(User, { foreignKey: 'ownedBy', as: 'owner' });
+
+  // Location association (using Institution as location proxy for now)
+  Institution.hasMany(IoTDevice, { foreignKey: 'locationId', as: 'locationDevices' });
+  IoTDevice.belongsTo(Institution, { foreignKey: 'locationId', as: 'location' });
+
+  // Phase 3: IoTSensorData Associations
+  IoTDevice.hasMany(IoTSensorData, { foreignKey: 'deviceId', as: 'sensorData' });
+  IoTSensorData.belongsTo(IoTDevice, { foreignKey: 'deviceId', as: 'device' });
+
+  Institution.hasMany(IoTSensorData, { foreignKey: 'institutionId', as: 'allSensorData' });
+  IoTSensorData.belongsTo(Institution, { foreignKey: 'institutionId', as: 'institution' });
+
+  // Phase 3: AIAssistant Associations
+  User.hasMany(AIAssistant, { foreignKey: 'userId', as: 'aiSessions' });
+  AIAssistant.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+  Institution.hasMany(AIAssistant, { foreignKey: 'institutionId', as: 'aiSessions' });
+  AIAssistant.belongsTo(Institution, { foreignKey: 'institutionId', as: 'institution' });
+
+  // Self-referencing relationship for conversation threading
+  AIChatMessage.hasMany(AIChatMessage, { foreignKey: 'parentMessageId', as: 'childMessages' });
+  AIChatMessage.belongsTo(AIChatMessage, { foreignKey: 'parentMessageId', as: 'parentMessage' });
+
+  // Phase 3: AIChatMessage Associations
+  AIAssistant.hasMany(AIChatMessage, { foreignKey: 'sessionId', as: 'messages' });
+  AIChatMessage.belongsTo(AIAssistant, { foreignKey: 'sessionId', as: 'session' });
+
+  User.hasMany(AIChatMessage, { foreignKey: 'userId', as: 'userMessages' });
+  AIChatMessage.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+  // Cross-model associations for Phase 3
+  // AIAssistant sessions can reference compliance documents
+  AIDocument.hasMany(AIChatMessage, { foreignKey: 'referencedDocumentId', as: 'referencedInMessages' });
+  AIChatMessage.belongsTo(AIDocument, { foreignKey: 'referencedDocumentId', as: 'referencedDocument' });
+
+  // IoT data can trigger blockchain records for compliance verification
+  IoTSensorData.hasMany(BlockchainRecord, { foreignKey: 'iotDataId', as: 'blockchainRecords' });
+  BlockchainRecord.belongsTo(IoTSensorData, { foreignKey: 'iotDataId', as: 'iotData' });
+
+  // AI assistant can generate compliance insights from IoT data
+  IoTDevice.hasMany(AIAssistant, { foreignKey: 'sourceDeviceId', as: 'generatedSessions' });
+  AIAssistant.belongsTo(IoTDevice, { foreignKey: 'sourceDeviceId', as: 'sourceDevice' });
 };
 
 // Export all models
@@ -143,7 +213,13 @@ const models = {
   GovernmentPortal,
   ComplianceVerification,
   AIDocument,
-  ExecutiveMetric
+  ExecutiveMetric,
+  // Phase 3 Models
+  BlockchainRecord,
+  IoTDevice,
+  IoTSensorData,
+  AIAssistant,
+  AIChatMessage
 };
 
 // Initialize associations
