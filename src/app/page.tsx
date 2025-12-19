@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, Clock, Shield, BarChart3, FileText, Users, Zap, Database, Network, Bot, ArrowRight, Star, IndianRupee } from 'lucide-react';
+import { CheckCircle, Clock, Shield, BarChart3, FileText, Users, Zap, Database, Network, Bot, ArrowRight, Star, IndianRupee, Building, GraduationCap, Crown } from 'lucide-react';
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -163,9 +164,9 @@ export default function Home() {
             
             <div className="hidden md:flex items-center space-x-6">
               <a href="#features" className="text-slate-600 hover:text-slate-900 transition-colors">Features</a>
+              <a href="/pricing" className="text-slate-600 hover:text-slate-900 transition-colors font-medium">Pricing</a>
               <a href="#phases" className="text-slate-600 hover:text-slate-900 transition-colors">Phases</a>
               <a href="#councils" className="text-slate-600 hover:text-slate-900 transition-colors">Councils</a>
-              <a href="#technologies" className="text-slate-600 hover:text-slate-900 transition-colors">Technologies</a>
               <a href="#integration" className="text-slate-600 hover:text-slate-900 transition-colors">Integration</a>
               <a href="#demo" className="text-slate-600 hover:text-slate-900 transition-colors">Demo</a>
             </div>
@@ -816,6 +817,86 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing Preview Section */}
+      <section className="py-16 px-4 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="container mx-auto">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <Badge className="mb-4">Risk Insurance Pricing</Badge>
+              <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+                Protect Your Institution from ₹50L–₹2Cr Penalties
+              </h2>
+              <p className="text-xl text-slate-600 mb-8">
+                PARSS pricing is based on penalty risk protection, not typical SaaS models
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <Building className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="font-bold text-lg mb-2">Small College</h3>
+                  <div className="text-2xl font-bold text-blue-600 mb-2">₹1L</div>
+                  <p className="text-sm text-slate-600 mb-4">Up to ₹50L protection</p>
+                  <Link href="/pricing">
+                    <Button variant="outline" size="sm" className="w-full">View Details</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+              
+              <Card className="text-center hover:shadow-lg transition-shadow border-blue-200">
+                <CardContent className="p-6">
+                  <GraduationCap className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+                  <h3 className="font-bold text-lg mb-2">Mid-Size Institute</h3>
+                  <div className="text-2xl font-bold text-purple-600 mb-2">₹2–3L</div>
+                  <p className="text-sm text-slate-600 mb-4">Up to ₹1Cr protection</p>
+                  <Link href="/pricing">
+                    <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700">Most Popular</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+              
+              <Card className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <Users className="w-12 h-12 text-green-600 mx-auto mb-4" />
+                  <h3 className="font-bold text-lg mb-2">University</h3>
+                  <div className="text-2xl font-bold text-green-600 mb-2">₹5–10L</div>
+                  <p className="text-sm text-slate-600 mb-4">Up to ₹2Cr protection</p>
+                  <Link href="/pricing">
+                    <Button variant="outline" size="sm" className="w-full">View Details</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+              
+              <Card className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <Crown className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
+                  <h3 className="font-bold text-lg mb-2">Education Group</h3>
+                  <div className="text-2xl font-bold text-yellow-600 mb-2">₹15L+</div>
+                  <p className="text-sm text-slate-600 mb-4">Unlimited protection</p>
+                  <Link href="/pricing">
+                    <Button variant="outline" size="sm" className="w-full">Enterprise</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="text-center mt-8">
+              <p className="text-slate-600 mb-4">
+                💰 <strong>Law of Penalty Economics:</strong> If we save ₹50L–₹2Cr in penalties, 
+                pricing below ₹1–5L/year is irrationally cheap.
+              </p>
+              <Link href="/pricing">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  View Complete Pricing & ROI Analysis
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Demo Section */}
       <section id="demo" className="py-20 px-4">
         <div className="container mx-auto">
@@ -985,6 +1066,7 @@ export default function Home() {
               <h3 className="font-semibold">Platform</h3>
               <ul className="space-y-2 text-slate-400">
                 <li><a href="#features" className="hover:text-white transition-colors">Penalty Avoidance Features</a></li>
+                <li><a href="/pricing" className="hover:text-white transition-colors font-medium">Pricing Plans</a></li>
                 <li><a href="#phases" className="hover:text-white transition-colors">Implementation Phases</a></li>
                 <li><a href="#councils" className="hover:text-white transition-colors">Specialized Councils</a></li>
                 <li><a href="#integration" className="hover:text-white transition-colors">Regulatory Integration</a></li>
